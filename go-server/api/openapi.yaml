@@ -1,0 +1,153 @@
+openapi: 3.1.0
+info:
+  contact:
+    email: api@tinarmengineering.com
+    name: Tin Arm Engineering
+    url: https://www.tinarmengineering.com/
+  description: The unnamed Tin Arm solver API
+  license:
+    name: 'Tin Arm '
+  termsOfService: https://www.tinarmengineering.com/
+  title: ta-solve
+  version: "1.0"
+servers:
+- description: Chris Wallis
+  url: http://localhost:3000
+paths:
+  /jobs/{id}:
+    delete:
+      description: Gets the job of the specified id
+      operationId: delete-jobs-id
+      parameters:
+      - description: The id of the target job
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema: {}
+        style: simple
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Job not found
+      summary: Delete Job
+    get:
+      description: Gets the job of the specified id
+      operationId: get-jobs-id
+      parameters:
+      - description: The id of the target job
+        explode: false
+        in: path
+        name: id
+        required: true
+        schema: {}
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/job'
+          description: OK
+        "404":
+          description: Job not found
+      summary: Get Job
+      tags: []
+    parameters:
+    - description: The id of the target job
+      explode: false
+      in: path
+      name: id
+      required: true
+      schema: {}
+      style: simple
+  /jobs:
+    post:
+      description: Creates a job with the specified properties
+      operationId: post-jobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/job'
+      responses:
+        "200":
+          description: OK
+      summary: Create Job
+components:
+  requestBodies: {}
+  responses: {}
+  schemas:
+    statorgeometry:
+      description: 'The stator geometry for this job '
+      example:
+        back_iron_thickness: ""
+        tooth_tip_angle: ""
+        internal_radius: ""
+        outer_diameter: ""
+        tooth_tip_depth: ""
+        number_slots: ""
+        bore: ""
+        slot_opening: ""
+        tooth_width: ""
+      properties:
+        bore:
+          description: Stator bore (mm)
+        tooth_tip_depth:
+          description: Tooth tip depth (mm)
+        slot_opening:
+          description: Slot opening (mm)
+        tooth_width:
+          description: Tooth width (mm)
+        outer_diameter:
+          description: Stator outer diameter (mm)
+        back_iron_thickness:
+          description: Back iron thickness (mm)
+        internal_radius:
+          description: Internal redius (mm)
+        number_slots:
+          description: Number of slots
+          format: int32
+        tooth_tip_angle:
+          description: Tool tip angle (degrees)
+      required:
+      - back_iron_thickness
+      - bore
+      - internal_radius
+      - number_slots
+      - outer_diameter
+      - slot_opening
+      - tooth_tip_angle
+      - tooth_tip_depth
+      - tooth_width
+      title: statorgeometry
+      x-stoplight:
+        id: km8rtyg43njwb
+    job:
+      description: The basic job resource
+      example:
+        stator:
+          back_iron_thickness: ""
+          tooth_tip_angle: ""
+          internal_radius: ""
+          outer_diameter: ""
+          tooth_tip_depth: ""
+          number_slots: ""
+          bore: ""
+          slot_opening: ""
+          tooth_width: ""
+        id: ""
+      properties:
+        id:
+          description: The unique id of this job
+        stator:
+          $ref: '#/components/schemas/statorgeometry'
+      required:
+      - stator
+      title: job
+      x-stoplight:
+        id: fe5fs1u52908t
+  securitySchemes: {}
+x-stoplight:
+  id: 9id0ut8pp6oo8
