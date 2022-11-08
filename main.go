@@ -11,33 +11,13 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 
-	_ "github.com/go-sql-driver/mysql"
-
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-
 	openapi "github.com/tinarmengineering/tinarm-api-srv/go"
-	dbo "github.com/tinarmengineering/tinarm-api-srv/go/dbo"
 )
 
 func main() {
-	//create("hellodb")
-
-	dsn := "root:tinarm@tcp(127.0.0.1:40000)/hellodb?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	// Migrate the schema
-	db.AutoMigrate(&dbo.Job{})
-
-	fmt.Println("Success!")
 
 	log.Printf("Server started")
 
@@ -47,28 +27,4 @@ func main() {
 	router := openapi.NewRouter(DefaultApiController)
 
 	log.Fatal(http.ListenAndServe(":8080", router))
-}
-
-func create(name string) {
-
-	db, err := sql.Open("mysql", "root:tinarm@tcp(127.0.0.1:40000)/")
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	_, err = db.Exec("CREATE DATABASE " + name)
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = db.Exec("USE " + name)
-	if err != nil {
-		panic(err)
-	}
-
-	// _, err = db.Exec("CREATE TABLE example ( id integer, data varchar(32) )")
-	// if err != nil {
-	// 	panic(err)
-	// }
 }

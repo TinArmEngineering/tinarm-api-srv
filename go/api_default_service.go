@@ -12,10 +12,18 @@ package openapi
 
 import (
 	"context"
+	"database/sql"
+	"encoding/json"
 
 	dbo "github.com/tinarmengineering/tinarm-api-srv/go/dbo"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+)
+
+const (
+	DB_CONNECTION        = "root:tinarm@tcp(127.0.0.1:40000)/"
+	DB_NAME              = "hellodb"
+	DB_CONNECTION_STRING = DB_CONNECTION + DB_NAME + "?charset=utf8mb4&parseTime=True&loc=Local"
 )
 
 // DefaultApiService is a service that implements the logic for the DefaultApiServicer
@@ -26,13 +34,24 @@ type DefaultApiService struct {
 
 // NewDefaultApiService creates a default api service
 func NewDefaultApiService() DefaultApiServicer {
+
+	ensureDbExists(DB_CONNECTION, DB_NAME)
+
+	db, err := gorm.Open(mysql.Open(DB_CONNECTION_STRING), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	// Migrate the schema
+	db.AutoMigrate(&dbo.Job{})
+
 	return &DefaultApiService{}
 }
 
 // DeleteJobsId - Delete Job
 func (s *DefaultApiService) DeleteJobsId(ctx context.Context, id interface{}) (ImplResponse, error) {
-	dsn := "root:tinarm@tcp(127.0.0.1:40000)/hellodb?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	db, err := gorm.Open(mysql.Open(DB_CONNECTION_STRING), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -45,8 +64,8 @@ func (s *DefaultApiService) DeleteJobsId(ctx context.Context, id interface{}) (I
 
 // GetJobsId - Get Job
 func (s *DefaultApiService) GetJobsId(ctx context.Context, id interface{}) (ImplResponse, error) {
-	dsn := "root:tinarm@tcp(127.0.0.1:40000)/hellodb?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	db, err := gorm.Open(mysql.Open(DB_CONNECTION_STRING), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
@@ -63,16 +82,29 @@ func (s *DefaultApiService) GetJobsId(ctx context.Context, id interface{}) (Impl
 
 // PostJobs - Create Job
 func (s *DefaultApiService) PostJobs(ctx context.Context, job Job) (ImplResponse, error) {
-	// TODO - update PostJobs with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
-	dsn := "root:tinarm@tcp(127.0.0.1:40000)/hellodb?charset=utf8mb4&parseTime=True&loc=Local"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(DB_CONNECTION_STRING), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 
-	db.Create(&dbo.Job{Data: "yaya"})
+	b, err := json.Marshal(job.Stator)
+
+	db.Create(&dbo.Job{Data: string(b)})
 
 	return Response(200, nil), nil
+}
+
+func ensureDbExists(connection string, name string) {
+
+	db, err := sql.Open("mysql", connection)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + name)
+	if err != nil {
+		panic(err)
+	}
 }
