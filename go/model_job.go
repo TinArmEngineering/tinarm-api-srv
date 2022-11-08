@@ -14,25 +14,25 @@ package openapi
 type Job struct {
 
 	// The unique id of this job
-	Id   *interface{} `json:"id,omitempty"`
-	Data string
-	//Stator Statorgeometry `json:"stator"`
+	Id *interface{} `json:"id,omitempty"`
+
+	Stator Statorgeometry `json:"stator"`
 }
 
 // AssertJobRequired checks if the required fields are not zero-ed
 func AssertJobRequired(obj Job) error {
-	// elements := map[string]interface{}{
-	// 	"stator": obj.Stator,
-	// }
-	// for name, el := range elements {
-	// 	if isZero := IsZeroValue(el); isZero {
-	// 		return &RequiredError{Field: name}
-	// 	}
-	// }
+	elements := map[string]interface{}{
+		"stator": obj.Stator,
+	}
+	for name, el := range elements {
+		if isZero := IsZeroValue(el); isZero {
+			return &RequiredError{Field: name}
+		}
+	}
 
-	// if err := AssertStatorgeometryRequired(obj.Stator); err != nil {
-	// 	return err
-	// }
+	if err := AssertStatorgeometryRequired(obj.Stator); err != nil {
+		return err
+	}
 	return nil
 }
 
