@@ -12,8 +12,10 @@ package openapi
 
 import (
 	"context"
-	"net/http"
-	"errors"
+
+	dbo "github.com/tinarmengineering/tinarm-api-srv/go/dbo"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
 // DefaultApiService is a service that implements the logic for the DefaultApiServicer
@@ -29,30 +31,34 @@ func NewDefaultApiService() DefaultApiServicer {
 
 // DeleteJobsId - Delete Job
 func (s *DefaultApiService) DeleteJobsId(ctx context.Context, id interface{}) (ImplResponse, error) {
-	// TODO - update DeleteJobsId with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	dsn := "root:tinarm@tcp(127.0.0.1:40000)/hellodb?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
 
-	//TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
-	//return Response(200, nil),nil
+	var job dbo.Job
+	db.Delete(&job, id)
 
-	//TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	//return Response(404, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("DeleteJobsId method not implemented")
+	return Response(200, nil), nil
 }
 
 // GetJobsId - Get Job
 func (s *DefaultApiService) GetJobsId(ctx context.Context, id interface{}) (ImplResponse, error) {
-	// TODO - update GetJobsId with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	dsn := "root:tinarm@tcp(127.0.0.1:40000)/hellodb?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
 
-	//TODO: Uncomment the next line to return response Response(200, Job{}) or use other options such as http.Ok ...
-	//return Response(200, Job{}), nil
+	var job dbo.Job
+	db.First(&job, id)
 
-	//TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	//return Response(404, nil),nil
+	if job.ID == 0 {
+		return Response(404, nil), nil
+	}
 
-	return Response(http.StatusNotImplemented, nil), errors.New("GetJobsId method not implemented")
+	return Response(200, job), nil
 }
 
 // PostJobs - Create Job
@@ -60,8 +66,13 @@ func (s *DefaultApiService) PostJobs(ctx context.Context, job Job) (ImplResponse
 	// TODO - update PostJobs with the required logic for this service method.
 	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
-	//TODO: Uncomment the next line to return response Response(200, {}) or use other options such as http.Ok ...
-	//return Response(200, nil),nil
+	dsn := "root:tinarm@tcp(127.0.0.1:40000)/hellodb?charset=utf8mb4&parseTime=True&loc=Local"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
 
-	return Response(http.StatusNotImplemented, nil), errors.New("PostJobs method not implemented")
+	db.Create(&dbo.Job{Data: "yaya"})
+
+	return Response(200, nil), nil
 }
