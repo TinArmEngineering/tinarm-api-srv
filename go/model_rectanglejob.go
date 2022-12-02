@@ -15,32 +15,3 @@ type Rectanglejob struct {
 
 	Geometry Rectanglegeometry `json:"geometry"`
 }
-
-// AssertRectanglejobRequired checks if the required fields are not zero-ed
-func AssertRectanglejobRequired(obj Rectanglejob) error {
-	elements := map[string]interface{}{
-		"geometry": obj.Geometry,
-	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
-		}
-	}
-
-	if err := AssertRectanglegeometryRequired(obj.Geometry); err != nil {
-		return err
-	}
-	return nil
-}
-
-// AssertRecurseRectanglejobRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of Rectanglejob (e.g. [][]Rectanglejob), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseRectanglejobRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aRectanglejob, ok := obj.(Rectanglejob)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertRectanglejobRequired(aRectanglejob)
-	})
-}

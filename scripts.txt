@@ -8,7 +8,7 @@ docker run --rm \
   --git-repo-id tinarm-api-srv
 
 
-# Powershell - Generate go server stubs  (run from this repo's parent folder)
+# Powershell/Go - Generate go server stubs  (run from this repo's parent folder)
 docker run --rm `
   -v ${PWD}:/local openapitools/openapi-generator-cli generate `
   -i /local/tinarm-api/reference/ta-solve.yaml `
@@ -17,6 +17,14 @@ docker run --rm `
   --git-user-id tinarmengineering `
   --git-repo-id tinarm-api-srv
 
+# Powershell/Go + Gin - Generate go gin server stubs  (run from this repo's parent folder)
+docker run --rm `
+  -v ${PWD}:/local openapitools/openapi-generator-cli generate `
+  -i /local/tinarm-api/reference/ta-solve.yaml `
+  -g go-gin-server `
+  -o /local/tinarm-api-srv `
+  --git-user-id tinarmengineering `
+  --git-repo-id tinarm-api-srv
 
 # Run the server locally (Run from this repo's root)
 go get -d -v ./...

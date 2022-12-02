@@ -19,20 +19,3 @@ type Job struct {
 
 	OriginalJob *interface{} `json:"originalJob,omitempty"`
 }
-
-// AssertJobRequired checks if the required fields are not zero-ed
-func AssertJobRequired(obj Job) error {
-	return nil
-}
-
-// AssertRecurseJobRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of Job (e.g. [][]Job), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseJobRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aJob, ok := obj.(Job)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertJobRequired(aJob)
-	})
-}

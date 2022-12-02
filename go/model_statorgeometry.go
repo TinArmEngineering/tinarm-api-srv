@@ -40,37 +40,3 @@ type Statorgeometry struct {
 	// Tool tip angle (degrees)
 	ToothTipAngle *interface{} `json:"tooth_tip_angle"`
 }
-
-// AssertStatorgeometryRequired checks if the required fields are not zero-ed
-func AssertStatorgeometryRequired(obj Statorgeometry) error {
-	elements := map[string]interface{}{
-		"bore": obj.Bore,
-		"tooth_tip_depth": obj.ToothTipDepth,
-		"slot_opening": obj.SlotOpening,
-		"tooth_width": obj.ToothWidth,
-		"outer_diameter": obj.OuterDiameter,
-		"back_iron_thickness": obj.BackIronThickness,
-		"internal_radius": obj.InternalRadius,
-		"number_slots": obj.NumberSlots,
-		"tooth_tip_angle": obj.ToothTipAngle,
-	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
-		}
-	}
-
-	return nil
-}
-
-// AssertRecurseStatorgeometryRequired recursively checks if required fields are not zero-ed in a nested slice.
-// Accepts only nested slice of Statorgeometry (e.g. [][]Statorgeometry), otherwise ErrTypeAssertionError is thrown.
-func AssertRecurseStatorgeometryRequired(objSlice interface{}) error {
-	return AssertRecurseInterfaceRequired(objSlice, func(obj interface{}) error {
-		aStatorgeometry, ok := obj.(Statorgeometry)
-		if !ok {
-			return ErrTypeAssertionError
-		}
-		return AssertStatorgeometryRequired(aStatorgeometry)
-	})
-}

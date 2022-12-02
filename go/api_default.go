@@ -13,147 +13,54 @@ package openapi
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
+	"github.com/tinarmengineering/tinarm-api-srv/go/dbo"
 )
 
-// DefaultApiController binds http requests to an api service and writes the service results to the http response
-type DefaultApiController struct {
-	service DefaultApiServicer
-	errorHandler ErrorHandler
-}
-
-// DefaultApiOption for how the controller is set up.
-type DefaultApiOption func(*DefaultApiController)
-
-// WithDefaultApiErrorHandler inject ErrorHandler into controller
-func WithDefaultApiErrorHandler(h ErrorHandler) DefaultApiOption {
-	return func(c *DefaultApiController) {
-		c.errorHandler = h
-	}
-}
-
-// NewDefaultApiController creates a default api controller
-func NewDefaultApiController(s DefaultApiServicer, opts ...DefaultApiOption) Router {
-	controller := &DefaultApiController{
-		service:      s,
-		errorHandler: DefaultErrorHandler,
-	}
-
-	for _, opt := range opts {
-		opt(controller)
-	}
-
-	return controller
-}
-
-// Routes returns all the api routes for the DefaultApiController
-func (c *DefaultApiController) Routes() Routes {
-	return Routes{ 
-		{
-			"DeleteJobsId",
-			strings.ToUpper("Delete"),
-			"/jobs/{id}",
-			c.DeleteJobsId,
-		},
-		{
-			"GetJobsId",
-			strings.ToUpper("Get"),
-			"/jobs/{id}",
-			c.GetJobsId,
-		},
-		{
-			"PostRectanglejobs",
-			strings.ToUpper("Post"),
-			"/rectanglejobs",
-			c.PostRectanglejobs,
-		},
-		{
-			"PostStatorjobs",
-			strings.ToUpper("Post"),
-			"/statorjobs",
-			c.PostStatorjobs,
-		},
-	}
-}
-
 // DeleteJobsId - Delete Job
-func (c *DefaultApiController) DeleteJobsId(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	idParam := params["id"]
-	
-	result, err := c.service.DeleteJobsId(r.Context(), idParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
-	}
-	// If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
+func DeleteJobsId(c *gin.Context) {
 
+	var job dbo.Job
+	dbo.DB.Delete(&job, c.Param("id"))
+
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 // GetJobsId - Get Job
-func (c *DefaultApiController) GetJobsId(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	idParam := params["id"]
-	
-	result, err := c.service.GetJobsId(r.Context(), idParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
-	}
-	// If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
+func GetJobsId(c *gin.Context) {
 
+	var job dbo.Job
+	dbo.DB.First(&job, c.Param("id"))
+
+	if job.ID == 0 {
+		c.JSON(http.StatusNotFound, gin.H{})
+	} else {
+		c.JSON(http.StatusOK, job)
+	}
 }
 
 // PostRectanglejobs - Create RectangleJob
-func (c *DefaultApiController) PostRectanglejobs(w http.ResponseWriter, r *http.Request) {
-	rectanglejobParam := Rectanglejob{}
-	d := json.NewDecoder(r.Body)
-	d.DisallowUnknownFields()
-	if err := d.Decode(&rectanglejobParam); err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
-	}
-	if err := AssertRectanglejobRequired(rectanglejobParam); err != nil {
-		c.errorHandler(w, r, err, nil)
-		return
-	}
-	result, err := c.service.PostRectanglejobs(r.Context(), rectanglejobParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
-	}
-	// If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
+func PostRectanglejobs(c *gin.Context) {
 
+	var rJob Rectanglejob
+	err := c.BindJSON(&rJob)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	rJobGeomotry, err := json.Marshal(rJob.Geometry)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	dbo.DB.Create(&dbo.Job{Data: string(rJobGeomotry)})
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 // PostStatorjobs - Create StatorJob
-func (c *DefaultApiController) PostStatorjobs(w http.ResponseWriter, r *http.Request) {
-	statorjobParam := Statorjob{}
-	d := json.NewDecoder(r.Body)
-	d.DisallowUnknownFields()
-	if err := d.Decode(&statorjobParam); err != nil {
-		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
-		return
-	}
-	if err := AssertStatorjobRequired(statorjobParam); err != nil {
-		c.errorHandler(w, r, err, nil)
-		return
-	}
-	result, err := c.service.PostStatorjobs(r.Context(), statorjobParam)
-	// If an error occurred, encode the error with the status code
-	if err != nil {
-		c.errorHandler(w, r, err, &result)
-		return
-	}
-	// If no error, encode the body and the result code
-	EncodeJSONResponse(result.Body, &result.Code, w)
-
+func PostStatorjobs(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
 }

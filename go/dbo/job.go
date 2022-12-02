@@ -20,6 +20,7 @@ const (
 
 type Job struct {
 	gorm.Model
+
 	Type   JobType   `gorm:"default:0"`
 	Status JobStatus `gorm:"default:0"`
 	Data   string
