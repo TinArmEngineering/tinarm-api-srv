@@ -62,35 +62,51 @@ paths:
       required: true
       schema: {}
       style: simple
-  /jobs:
+  /statorjobs:
     post:
-      description: Creates a job with the specified properties
-      operationId: post-jobs
+      description: Creates a StatorJob with the specified properties
+      operationId: post-statorjobs
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/job'
+              $ref: '#/components/schemas/statorjob'
       responses:
         "200":
           description: OK
-      summary: Create Job
+      summary: Create StatorJob
+  /rectanglejobs:
+    post:
+      description: Creates a RectangleJob with the specified properties
+      operationId: post-rectanglejobs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/rectanglejob'
+      responses:
+        "200":
+          description: OK
+      summary: Create RectangleJob
 components:
   requestBodies: {}
   responses: {}
   schemas:
+    job:
+      description: Represents a basic job resource
+      example:
+        originalJob: ""
+        id: ""
+        status: ""
+      properties:
+        id: {}
+        status: {}
+        originalJob: {}
+      title: job
+      x-stoplight:
+        id: 3w5to1qwy2bph
     statorgeometry:
       description: 'The stator geometry for this job '
-      example:
-        back_iron_thickness: ""
-        tooth_tip_angle: ""
-        internal_radius: ""
-        outer_diameter: ""
-        tooth_tip_depth: ""
-        number_slots: ""
-        bore: ""
-        slot_opening: ""
-        tooth_width: ""
       properties:
         bore:
           description: Stator bore (mm)
@@ -124,30 +140,39 @@ components:
       title: statorgeometry
       x-stoplight:
         id: km8rtyg43njwb
-    job:
-      description: The basic job resource
-      example:
-        stator:
-          back_iron_thickness: ""
-          tooth_tip_angle: ""
-          internal_radius: ""
-          outer_diameter: ""
-          tooth_tip_depth: ""
-          number_slots: ""
-          bore: ""
-          slot_opening: ""
-          tooth_width: ""
-        id: ""
+    statorjob:
+      description: Represents a stator job resource
       properties:
-        id:
-          description: The unique id of this job
-        stator:
+        geometry:
           $ref: '#/components/schemas/statorgeometry'
       required:
-      - stator
-      title: job
+      - geometry
+      title: statorjob
       x-stoplight:
         id: fe5fs1u52908t
+    rectanglegeometry:
+      description: 'The rectangle geometry for this job '
+      properties:
+        length:
+          description: Length (mm)
+        width:
+          description: Width (mm)
+      required:
+      - length
+      - width
+      title: rectanglegeometry
+      x-stoplight:
+        id: fhtd8kb918jhw
+    rectanglejob:
+      description: Represents a rectangle job resource
+      properties:
+        geometry:
+          $ref: '#/components/schemas/rectanglegeometry'
+      required:
+      - geometry
+      title: rectanglejob
+      x-stoplight:
+        id: bt0s0m2ctgtd9
   securitySchemes: {}
 x-stoplight:
   id: 9id0ut8pp6oo8

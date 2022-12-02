@@ -23,7 +23,8 @@ import (
 type DefaultApiRouter interface { 
 	DeleteJobsId(http.ResponseWriter, *http.Request)
 	GetJobsId(http.ResponseWriter, *http.Request)
-	PostJobs(http.ResponseWriter, *http.Request)
+	PostRectanglejobs(http.ResponseWriter, *http.Request)
+	PostStatorjobs(http.ResponseWriter, *http.Request)
 }
 
 
@@ -34,5 +35,6 @@ type DefaultApiRouter interface {
 type DefaultApiServicer interface { 
 	DeleteJobsId(context.Context, interface{}) (ImplResponse, error)
 	GetJobsId(context.Context, interface{}) (ImplResponse, error)
-	PostJobs(context.Context, Job) (ImplResponse, error)
+	PostRectanglejobs(context.Context, Rectanglejob) (ImplResponse, error)
+	PostStatorjobs(context.Context, Statorjob) (ImplResponse, error)
 }

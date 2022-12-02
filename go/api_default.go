@@ -64,10 +64,16 @@ func (c *DefaultApiController) Routes() Routes {
 			c.GetJobsId,
 		},
 		{
-			"PostJobs",
+			"PostRectanglejobs",
 			strings.ToUpper("Post"),
-			"/jobs",
-			c.PostJobs,
+			"/rectanglejobs",
+			c.PostRectanglejobs,
+		},
+		{
+			"PostStatorjobs",
+			strings.ToUpper("Post"),
+			"/statorjobs",
+			c.PostStatorjobs,
 		},
 	}
 }
@@ -104,20 +110,44 @@ func (c *DefaultApiController) GetJobsId(w http.ResponseWriter, r *http.Request)
 
 }
 
-// PostJobs - Create Job
-func (c *DefaultApiController) PostJobs(w http.ResponseWriter, r *http.Request) {
-	jobParam := Job{}
+// PostRectanglejobs - Create RectangleJob
+func (c *DefaultApiController) PostRectanglejobs(w http.ResponseWriter, r *http.Request) {
+	rectanglejobParam := Rectanglejob{}
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
-	if err := d.Decode(&jobParam); err != nil {
+	if err := d.Decode(&rectanglejobParam); err != nil {
 		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
 		return
 	}
-	if err := AssertJobRequired(jobParam); err != nil {
+	if err := AssertRectanglejobRequired(rectanglejobParam); err != nil {
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.PostJobs(r.Context(), jobParam)
+	result, err := c.service.PostRectanglejobs(r.Context(), rectanglejobParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	EncodeJSONResponse(result.Body, &result.Code, w)
+
+}
+
+// PostStatorjobs - Create StatorJob
+func (c *DefaultApiController) PostStatorjobs(w http.ResponseWriter, r *http.Request) {
+	statorjobParam := Statorjob{}
+	d := json.NewDecoder(r.Body)
+	d.DisallowUnknownFields()
+	if err := d.Decode(&statorjobParam); err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	if err := AssertStatorjobRequired(statorjobParam); err != nil {
+		c.errorHandler(w, r, err, nil)
+		return
+	}
+	result, err := c.service.PostStatorjobs(r.Context(), statorjobParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

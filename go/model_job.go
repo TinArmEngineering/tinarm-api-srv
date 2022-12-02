@@ -10,29 +10,18 @@
 
 package openapi
 
-// Job - The basic job resource
+// Job - Represents a basic job resource
 type Job struct {
 
-	// The unique id of this job
 	Id *interface{} `json:"id,omitempty"`
 
-	Stator Statorgeometry `json:"stator"`
+	Status *interface{} `json:"status,omitempty"`
+
+	OriginalJob *interface{} `json:"originalJob,omitempty"`
 }
 
 // AssertJobRequired checks if the required fields are not zero-ed
 func AssertJobRequired(obj Job) error {
-	elements := map[string]interface{}{
-		"stator": obj.Stator,
-	}
-	for name, el := range elements {
-		if isZero := IsZeroValue(el); isZero {
-			return &RequiredError{Field: name}
-		}
-	}
-
-	if err := AssertStatorgeometryRequired(obj.Stator); err != nil {
-		return err
-	}
 	return nil
 }
 

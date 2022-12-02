@@ -27,3 +27,5 @@ go run main.go
 # Run the server in a docker container (Run from this repo's root)
 docker build --network=host -t openapi .
 docker run -dp 8080:8080 openapi
+
+# Run mariadb and phpmy admin
