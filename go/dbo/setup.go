@@ -4,6 +4,7 @@ package dbo
 
 import (
 	"database/sql"
+	"log"
 	"os"
 
 	"gorm.io/driver/mysql"
@@ -22,25 +23,17 @@ var DB *gorm.DB
 
 func ConnectDatabase() {
 
-	dbHost := os.Getenv("GOSERVER_DB_HOST")
-	if dbHost == "" {
-		dbHost = DB_HOST
-	}
+	dbHost := getEnvironment("GOSERVER_DB_HOST", DB_HOST)
+	dbUser := getEnvironment("GOSERVER_DB_USER", DB_USER)
+	dbPass := getEnvironment("GOSERVER_DB_PASS", DB_PASS)
+	dbName := getEnvironment("GOSERVER_DB_NAME", DB_NAME)
 
-	dbUser := os.Getenv("GOSERVER_DB_USER")
-	if dbUser == "" {
-		dbUser = DB_USER
-	}
+	dbConnection := dbUser + ":" + dbPass + "@tcp(" + dbHost + ")/"
+	dbConnectionString := dbConnection + dbName + "?charset=utf8mb4&parseTime=True&loc=Local"
 
-	dbPass := os.Getenv("GOSERVER_DB_PASS")
-	if dbPass == "" {
-		dbPass = DB_USER
-	}
+	log.Printf("Using connection string: " + dbConnectionString)
 
-	dbConnection := DB_USER + ":" + DB_PASS + "@tcp(" + DB_HOST + ")/"
-	dbConnectionString := dbConnection + DB_NAME + "?charset=utf8mb4&parseTime=True&loc=Local"
-
-	ensureDbExists(dbConnection, DB_NAME)
+	ensureDbExists(dbConnection, dbName)
 
 	db, err := gorm.Open(mysql.Open(dbConnectionString), &gorm.Config{})
 	if err != nil {
@@ -55,6 +48,15 @@ func ConnectDatabase() {
 	}
 
 	DB = db
+}
+
+func getEnvironment(name string, defaultOnEmpty string) string {
+
+	setting := os.Getenv("name")
+	if setting == "" {
+		setting = defaultOnEmpty
+	}
+	return setting
 }
 
 func ensureDbExists(dbConnection string, dbName string) {
