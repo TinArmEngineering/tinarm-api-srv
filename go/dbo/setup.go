@@ -4,6 +4,7 @@ package dbo
 
 import (
 	"database/sql"
+	"os"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -11,23 +12,37 @@ import (
 
 const (
 	// Dev config
-	DB_CONNECTION = "root:tinarm@tcp(mariadb)/"
-	DB_NAME       = "hellodb"
-
-	// Test config
-	// DB_CONNECTION = "root:tinarm@tcp(host.docker.internal)/"
-	// DB_NAME       = "tinarm_test"
-
-	DB_CONNECTION_STRING = DB_CONNECTION + DB_NAME + "?charset=utf8mb4&parseTime=True&loc=Local"
+	DB_HOST = "127.0.0.1:3306"
+	DB_USER = "root"
+	DB_PASS = "tinarm"
+	DB_NAME = "tinarm_server"
 )
 
 var DB *gorm.DB
 
 func ConnectDatabase() {
 
-	ensureDbExists()
+	dbHost := os.Getenv("GOSERVER_DB_HOST")
+	if dbHost == "" {
+		dbHost = DB_HOST
+	}
 
-	db, err := gorm.Open(mysql.Open(DB_CONNECTION_STRING), &gorm.Config{})
+	dbUser := os.Getenv("GOSERVER_DB_USER")
+	if dbUser == "" {
+		dbUser = DB_USER
+	}
+
+	dbPass := os.Getenv("GOSERVER_DB_PASS")
+	if dbPass == "" {
+		dbPass = DB_USER
+	}
+
+	dbConnection := DB_USER + ":" + DB_PASS + "@tcp(" + DB_HOST + ")/"
+	dbConnectionString := dbConnection + DB_NAME + "?charset=utf8mb4&parseTime=True&loc=Local"
+
+	ensureDbExists(dbConnection, DB_NAME)
+
+	db, err := gorm.Open(mysql.Open(dbConnectionString), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")
 	}
@@ -42,15 +57,15 @@ func ConnectDatabase() {
 	DB = db
 }
 
-func ensureDbExists() {
+func ensureDbExists(dbConnection string, dbName string) {
 
-	db, err := sql.Open("mysql", DB_CONNECTION)
+	db, err := sql.Open("mysql", dbConnection)
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
-	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + DB_NAME)
+	_, err = db.Exec("CREATE DATABASE IF NOT EXISTS " + dbName)
 	if err != nil {
 		panic(err)
 	}
