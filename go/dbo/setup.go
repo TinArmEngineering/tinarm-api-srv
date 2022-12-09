@@ -11,7 +11,7 @@ import (
 
 const (
 	// Dev config
-	DB_CONNECTION = "root:tinarm@tcp(127.0.0.1:40000)/"
+	DB_CONNECTION = "root:tinarm@tcp(mariadb)/"
 	DB_NAME       = "hellodb"
 
 	// Test config
