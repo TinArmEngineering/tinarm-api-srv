@@ -16,7 +16,7 @@ const (
 	DB_HOST = "127.0.0.1:3306"
 	DB_USER = "root"
 	DB_PASS = "tinarm"
-	DB_NAME = "tinarm_server"
+	DB_NAME = "tinarm_server_dev"
 )
 
 var DB *gorm.DB
@@ -52,7 +52,7 @@ func ConnectDatabase() {
 
 func getEnvironment(name string, defaultOnEmpty string) string {
 
-	setting := os.Getenv("name")
+	setting := os.Getenv(name)
 	if setting == "" {
 		setting = defaultOnEmpty
 	}
