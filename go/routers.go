@@ -11,11 +11,31 @@
 package openapi
 
 import (
+	"encoding/json"
+	"errors"
+	"fmt"
+	"log"
 	"net/http"
+	"os"
 
+	jwtmiddleware "github.com/auth0/go-jwt-middleware"
+	jwt "github.com/form3tech-oss/jwt-go"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
+
+type Jwks struct {
+	Keys []JSONWebKeys `json:"keys"`
+}
+
+type JSONWebKeys struct {
+	Kty string   `json:"kty"`
+	Kid string   `json:"kid"`
+	Use string   `json:"use"`
+	N   string   `json:"n"`
+	E   string   `json:"e"`
+	X5c []string `json:"x5c"`
+}
 
 // Route is the information for every URI.
 type Route struct {
@@ -32,11 +52,42 @@ type Route struct {
 // Routes is the list of the generated Route.
 type Routes []Route
 
+var jwtMiddleWare *jwtmiddleware.JWTMiddleware
+
 // NewRouter returns a new router.
 func NewRouter() *gin.Engine {
 
+	jwtMiddleware := jwtmiddleware.New(jwtmiddleware.Options{
+		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
+			aud := os.Getenv("AUTH0_API_AUDIENCE")
+			checkAudience := token.Claims.(jwt.MapClaims).VerifyAudience(aud, false)
+			if !checkAudience {
+				return token, errors.New("invalid audience")
+			}
+			// verify iss claim
+			iss := os.Getenv("AUTH0_DOMAIN")
+			checkIss := token.Claims.(jwt.MapClaims).VerifyIssuer(iss, false)
+			if !checkIss {
+				return token, errors.New("invalid issuer")
+			}
+
+			cert, err := getPemCert(token)
+			if err != nil {
+				log.Fatalf("could not get cert: %+v", err)
+			}
+
+			result, _ := jwt.ParseRSAPublicKeyFromPEM([]byte(cert))
+			return result, nil
+		},
+		SigningMethod: jwt.SigningMethodRS256,
+	})
+
+	// register our actual jwtMiddleware
+	jwtMiddleWare = jwtMiddleware
+
 	router := gin.Default()
 
+	// Enable CORS for all origins
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	config.AllowCredentials = true
@@ -46,15 +97,15 @@ func NewRouter() *gin.Engine {
 	for _, route := range routes {
 		switch route.Method {
 		case http.MethodGet:
-			router.GET(route.Pattern, route.HandlerFunc)
+			router.GET(route.Pattern, authMiddleware(), route.HandlerFunc)
 		case http.MethodPost:
-			router.POST(route.Pattern, route.HandlerFunc)
+			router.POST(route.Pattern, authMiddleware(), route.HandlerFunc)
 		case http.MethodPut:
-			router.PUT(route.Pattern, route.HandlerFunc)
+			router.PUT(route.Pattern, authMiddleware(), route.HandlerFunc)
 		case http.MethodPatch:
-			router.PATCH(route.Pattern, route.HandlerFunc)
+			router.PATCH(route.Pattern, authMiddleware(), route.HandlerFunc)
 		case http.MethodDelete:
-			router.DELETE(route.Pattern, route.HandlerFunc)
+			router.DELETE(route.Pattern, authMiddleware(), route.HandlerFunc)
 		}
 	}
 
@@ -63,16 +114,16 @@ func NewRouter() *gin.Engine {
 
 // Index is the index handler.
 func Index(c *gin.Context) {
-	c.String(http.StatusOK, "Hello World!")
+	c.String(http.StatusOK, "Tin Arm | SnO2 | API root")
 }
 
 var routes = Routes{
-	// {
-	// 	"Index",
-	// 	http.MethodGet,
-	// 	"/",
-	// 	Index,
-	// },
+	{
+		"Index",
+		http.MethodGet,
+		"/",
+		Index,
+	},
 
 	{
 		"DeleteJobsId",
@@ -101,4 +152,50 @@ var routes = Routes{
 		"/statorjobs",
 		PostStatorjobs,
 	},
+}
+
+// authMiddleware intercepts the requests, and check for a valid jwt token
+func authMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		// Get the client secret key
+		err := jwtMiddleWare.CheckJWT(c.Writer, c.Request)
+		if err != nil {
+			// Token not found
+			fmt.Println(err)
+			c.Abort()
+			c.Writer.WriteHeader(http.StatusUnauthorized)
+			c.Writer.Write([]byte("Unauthorized"))
+			return
+		}
+	}
+}
+
+func getPemCert(token *jwt.Token) (string, error) {
+	cert := ""
+	resp, err := http.Get(os.Getenv("AUTH0_DOMAIN") + ".well-known/jwks.json")
+	if err != nil {
+		return cert, err
+	}
+	defer resp.Body.Close()
+
+	var jwks = Jwks{}
+	err = json.NewDecoder(resp.Body).Decode(&jwks)
+
+	if err != nil {
+		return cert, err
+	}
+
+	x5c := jwks.Keys[0].X5c
+	for k, v := range x5c {
+		if token.Header["kid"] == jwks.Keys[k].Kid {
+			cert = "-----BEGIN CERTIFICATE-----\n" + v + "\n-----END CERTIFICATE-----"
+		}
+	}
+
+	if cert == "" {
+		return cert, errors.New("unable to find appropriate key")
+	}
+
+	return cert, nil
 }
