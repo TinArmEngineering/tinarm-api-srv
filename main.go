@@ -57,6 +57,10 @@ type Joke struct {
 	Joke  string `json:"joke" binding:"required"`
 }
 
+type ExternalResponse struct {
+	Msg string `json:"msg" binding:"required"`
+}
+
 /** we'll create a list of jokes */
 var jokes = []Joke{
 	{1, 0, "What do you call a fake noodle? An Impasta."},
@@ -71,6 +75,7 @@ var jokes = []Joke{
 var jwtMiddleWare *jwtmiddleware.JWTMiddleware
 
 func main() {
+
 	jwtMiddleware := jwtmiddleware.New(jwtmiddleware.Options{
 		ValidationKeyGetter: func(token *jwt.Token) (interface{}, error) {
 			aud := os.Getenv("AUTH0_API_AUDIENCE")
@@ -109,7 +114,7 @@ func main() {
 	router.Use(static.Serve("/", static.LocalFile("./views", true)))
 
 	// Setup route group for the API
-	api := router.Group("/jokeapi")
+	api := router.Group("/api")
 	{
 		api.GET("/", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{
@@ -123,6 +128,9 @@ func main() {
 	// /jokes/like/:jokeID - which will capture likes sent to a particular joke
 	api.GET("/jokes", authMiddleware(), JokeHandler)
 	api.POST("/jokes/like/:jokeID", authMiddleware(), LikeJoke)
+
+	// For angular UI
+	api.GET("/external", authMiddleware(), ExternalHandler)
 
 	log.Fatal(router.Run(":8080"))
 }
@@ -195,4 +203,10 @@ func LikeJoke(c *gin.Context) {
 		// Joke ID is invalid
 		c.AbortWithStatus(http.StatusNotFound)
 	}
+}
+
+// JokeHandler retrieves a list of available jokes
+func ExternalHandler(c *gin.Context) {
+	c.Header("Content-Type", "application/json")
+	c.JSON(http.StatusOK, ExternalResponse{Msg: "Your access token was successfully validated by the go server!"})
 }
