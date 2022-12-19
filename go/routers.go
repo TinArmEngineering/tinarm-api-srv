@@ -11,6 +11,7 @@
 package openapi
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -180,7 +181,17 @@ func authMiddleware() gin.HandlerFunc {
 
 func getPemCert(token *jwt.Token) (string, error) {
 	cert := ""
-	resp, err := http.Get(os.Getenv("AUTH0_DOMAIN") + ".well-known/jwks.json")
+
+	// Disable security checks for this call only.  Fixes cert error (Signed by unknown authority)
+	// when run from docker container.
+	// TODO - Actually install the correct certificates on the container?
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
+
+	resp, err := client.Get(os.Getenv("AUTH0_DOMAIN") + ".well-known/jwks.json")
+
 	if err != nil {
 		return cert, err
 	}
