@@ -11,67 +11,25 @@
 package openapi
 
 import (
-	"encoding/json"
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
-	"github.com/tinarmengineering/tinarm-api-srv/go/dbo"
 )
 
 // DeleteJobsId - Delete Job
 func DeleteJobsId(c *gin.Context) {
-
-	var job dbo.Job
-	dbo.DB.Delete(&job, c.Param("id"))
-
-	c.JSON(http.StatusOK, gin.H{})
+	DoDeleteJobsId(c)
 }
 
 // GetJobsId - Get Job
 func GetJobsId(c *gin.Context) {
-
-	var job dbo.Job
-	dbo.DB.First(&job, c.Param("id"))
-
-	if job.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{})
-	} else {
-		c.JSON(http.StatusOK, job)
-	}
+	DoGetJobsId(c)
 }
 
 // PostRectanglejobs - Create RectangleJob
 func PostRectanglejobs(c *gin.Context) {
-
-	var rJob Rectanglejob
-	err := c.BindJSON(&rJob)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	rJobGeomotry, err := json.Marshal(rJob.Geometry)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	var newJob = dbo.Job{Data: string(rJobGeomotry)}
-	dbo.DB.Create(&newJob)
-
-	body := "{\"id\":\"" +
-		strconv.Itoa(int(newJob.ID)) +
-		"\", \"data\":" +
-		string(rJobGeomotry) +
-		", \"nextstep\":null}"
-
-	dbo.Enqueue(body)
-
-	c.JSON(http.StatusOK, gin.H{})
+	DoPostRectanglejobs(c)
 }
 
 // PostStatorjobs - Create StatorJob
 func PostStatorjobs(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	DoPostStatorjobs(c)
 }
