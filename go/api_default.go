@@ -11,67 +11,45 @@
 package openapi
 
 import (
-	"encoding/json"
-	"net/http"
-	"strconv"
-
 	"github.com/gin-gonic/gin"
-	"github.com/tinarmengineering/tinarm-api-srv/go/dbo"
 )
 
 // DeleteJobsId - Delete Job
 func DeleteJobsId(c *gin.Context) {
+	DoDeleteJobsId(c)
+}
 
-	var job dbo.Job
-	dbo.DB.Delete(&job, c.Param("id"))
-
-	c.JSON(http.StatusOK, gin.H{})
+// DeleteMaterialsId - Delete Materials
+func DeleteMaterialsId(c *gin.Context) {
+	DoDeleteMaterialsId(c)
 }
 
 // GetJobsId - Get Job
 func GetJobsId(c *gin.Context) {
+	DoGetJobsId(c)
+}
 
-	var job dbo.Job
-	dbo.DB.First(&job, c.Param("id"))
+// GetMaterialsId - Get Materials
+func GetMaterialsId(c *gin.Context) {
+	DoGetMaterialsId(c)
+}
 
-	if job.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{})
-	} else {
-		c.JSON(http.StatusOK, job)
-	}
+// PostMaterials - Create Material
+func PostMaterials(c *gin.Context) {
+	DoPostMaterials(c)
 }
 
 // PostRectanglejobs - Create RectangleJob
 func PostRectanglejobs(c *gin.Context) {
-
-	var rJob Rectanglejob
-	err := c.BindJSON(&rJob)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	rJobGeomotry, err := json.Marshal(rJob.Geometry)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, err)
-		return
-	}
-
-	var newJob = dbo.Job{Data: string(rJobGeomotry)}
-	dbo.DB.Create(&newJob)
-
-	body := "{\"id\":\"" +
-		strconv.Itoa(int(newJob.ID)) +
-		"\", \"data\":" +
-		string(rJobGeomotry) +
-		", \"nextstep\":null}"
-
-	dbo.Enqueue(body)
-
-	c.JSON(http.StatusOK, gin.H{})
+	DoPostRectanglejobs(c)
 }
 
 // PostStatorjobs - Create StatorJob
 func PostStatorjobs(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	DoPostStatorjobs(c)
+}
+
+// PutMaterialsId - Update Materials
+func PutMaterialsId(c *gin.Context) {
+	DoPutMaterialsId(c)
 }

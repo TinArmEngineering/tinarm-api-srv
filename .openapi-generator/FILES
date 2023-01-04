@@ -1,12 +1,10 @@
-.openapi-generator-ignore
-Dockerfile
 api/openapi.yaml
 go/README.md
 go/api_default.go
 go/model_job.go
+go/model_material.go
+go/model_quantity.go
 go/model_rectanglegeometry.go
 go/model_rectanglejob.go
-go/model_statorgeometry.go
-go/model_statorjob.go
+go/model_stator_thermal_job.go
 go/routers.go
-main.go
