@@ -1,36 +1,25 @@
 # Mac - Generate go server stubs  (run from this repo's parent folder)
 docker run --rm \
   -v $(pwd):/local openapitools/openapi-generator-cli generate \
-  -i /local/tinarm-api/reference/ta-solve.yaml \
-  -g go-server \
-  -o /local/tinarm-api-srv \
+  -i /local/srv-definition/reference/ta-solve.yaml \
+  -g go-gin-server \
+  -o /local/srv-go \
   --git-user-id tinarmengineering \
-  --git-repo-id tinarm-api-srv
-
-
-# Powershell/Go - Generate go server stubs  (run from this repo's parent folder)
-docker run --rm `
-  -v ${PWD}:/local openapitools/openapi-generator-cli generate `
-  -i /local/tinarm-api/reference/ta-solve.yaml `
-  -g go-server `
-  -o /local/tinarm-api-srv `
-  --git-user-id tinarmengineering `
-  --git-repo-id tinarm-api-srv
+  --git-repo-id sno2-srv-go
 
 # Powershell/Go + Gin - Generate go gin server stubs  (run from this repo's parent folder)
 docker run --rm `
   -v ${PWD}:/local openapitools/openapi-generator-cli generate `
-  -i /local/tinarm-api/reference/ta-solve.yaml `
+  -i /local/srv-definition/reference/ta-solve.yaml `
   -g go-gin-server `
-  -o /local/tinarm-api-srv `
+  -o /local/srv-go `
   --git-user-id tinarmengineering `
-  --git-repo-id tinarm-api-srv
+  --git-repo-id sno2-srv-go
 
 # Run the server locally (Run from this repo's root)
 go get -d -v ./...
 go build -a -installsuffix cgo -o openapi .
 go run main.go
-
 
 # Run the server in a docker container (Run from this repo's root)
 docker build --network=host -t openapi .
