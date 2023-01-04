@@ -70,7 +70,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/statorjob'
+              $ref: '#/components/schemas/stator_thermal_job'
       responses:
         "200":
           description: OK
@@ -88,6 +88,74 @@ paths:
         "200":
           description: OK
       summary: Create RectangleJob
+  /materials:
+    post:
+      operationId: post-materials
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/material'
+          description: Created
+      summary: Create Material
+  /materials/{id}:
+    delete:
+      operationId: delete-materials-id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema: {}
+        style: simple
+      responses:
+        "200":
+          description: OK
+      summary: Delete Materials
+    get:
+      operationId: get-materials-id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema: {}
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/material'
+          description: OK
+      summary: Get Materials
+      tags: []
+    parameters:
+    - explode: false
+      in: path
+      name: id
+      required: true
+      schema: {}
+      style: simple
+    put:
+      operationId: put-materials-id
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema: {}
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/material'
+      responses:
+        "200":
+          description: OK
+      summary: Update Materials
 components:
   requestBodies: {}
   responses: {}
@@ -105,51 +173,66 @@ components:
       title: job
       x-stoplight:
         id: 3w5to1qwy2bph
-    statorgeometry:
-      description: 'The stator geometry for this job '
-      properties:
-        bore:
-          description: Stator bore (mm)
-        tooth_tip_depth:
-          description: Tooth tip depth (mm)
-        slot_opening:
-          description: Slot opening (mm)
-        tooth_width:
-          description: Tooth width (mm)
-        outer_diameter:
-          description: Stator outer diameter (mm)
-        back_iron_thickness:
-          description: Back iron thickness (mm)
-        internal_radius:
-          description: Internal redius (mm)
-        number_slots:
-          description: Number of slots
-          format: int32
-        tooth_tip_angle:
-          description: Tool tip angle (degrees)
-      required:
-      - back_iron_thickness
-      - bore
-      - internal_radius
-      - number_slots
-      - outer_diameter
-      - slot_opening
-      - tooth_tip_angle
-      - tooth_tip_depth
-      - tooth_width
-      title: statorgeometry
-      x-stoplight:
-        id: km8rtyg43njwb
-    statorjob:
-      description: Represents a stator job resource
+    stator_thermal_job:
+      description: A thermal simulation of a stator tooth
       properties:
         geometry:
-          $ref: '#/components/schemas/statorgeometry'
-      required:
-      - geometry
-      title: statorjob
+          allOf:
+          - description: The tooth geometry
+            properties:
+              bore:
+                description: Stator bore (mm)
+              tooth_tip_depth:
+                description: Tooth tip depth (mm)
+              slot_opening:
+                description: Slot opening (mm)
+              tooth_width:
+                description: Tooth width (mm)
+              outer_diameter:
+                description: Stator outer diameter (mm)
+              back_iron_thickness:
+                description: Back iron thickness (mm)
+              internal_radius:
+                description: Internal redius (mm)
+              number_slots:
+                description: Number of slots
+                format: int32
+              tooth_tip_angle:
+                description: Tool tip angle (degrees)
+            required:
+            - back_iron_thickness
+            - bore
+            - internal_radius
+            - number_slots
+            - outer_diameter
+            - slot_opening
+            - tooth_tip_angle
+            - tooth_tip_depth
+            - tooth_width
+            title: statorgeometry
+            x-stoplight:
+              id: km8rtyg43njwb
+          - description: Geometric parameters of the insulation
+            properties:
+              slot_wedge_depth:
+                default: 0.0025
+                description: "The depth of the slot wedge, in m.  It can not be bigger\
+                  \ than the tooth tip."
+                format: double
+              slot_liner_thickness:
+                default: 2.0E-4
+                description: The thickness of the slot liner in m.  A resonable value
+                  is 0.2mm or 0.0002m.
+                format: double
+            required:
+            - slot_liner_thickness
+            - slot_wedge_depth
+            title: insulatorgeometry
+            x-stoplight:
+              id: yync6a1bf74vp
+      title: stator_thermal_job
       x-stoplight:
-        id: fe5fs1u52908t
+        id: 5yvxgcmkjtho2
     rectanglegeometry:
       description: 'The rectangle geometry for this job '
       properties:
@@ -173,6 +256,80 @@ components:
       title: rectanglejob
       x-stoplight:
         id: bt0s0m2ctgtd9
+    quantity:
+      example:
+        quantity: ""
+        magnitude: ""
+      properties:
+        magnitude:
+          format: double
+        quantity:
+          items:
+            properties:
+              name:
+                example: meters
+              exponent:
+                format: int32
+            required:
+            - exponent
+            - name
+            title: unit
+            x-stoplight:
+              id: h65e3t7iw16g0
+      required:
+      - magnitude
+      title: quantity
+      x-stoplight:
+        id: yzdzqye0p2wc0
+    material:
+      description: Linear material model
+      example:
+        reference: ""
+        electric_conductivity:
+          quantity: ""
+          magnitude: ""
+        relative_permittivity: ""
+        heat_capacity:
+          quantity: ""
+          magnitude: ""
+        density:
+          quantity: ""
+          magnitude: ""
+        heat_conductivity:
+          quantity: ""
+          magnitude: ""
+        name: ""
+        relative_permeability: ""
+        id: ""
+      properties:
+        id:
+          readOnly: true
+        reference:
+          format: uri
+        heat_conductivity:
+          $ref: '#/components/schemas/quantity'
+        electric_conductivity:
+          $ref: '#/components/schemas/quantity'
+        relative_permeability:
+          default: 1
+        relative_permittivity:
+          default: 1
+        heat_capacity:
+          $ref: '#/components/schemas/quantity'
+        density:
+          $ref: '#/components/schemas/quantity'
+        name: {}
+      required:
+      - density
+      - electric_conductivity
+      - heat_capacity
+      - heat_conductivity
+      - name
+      - relative_permeability
+      - relative_permittivity
+      title: material
+      x-stoplight:
+        id: f0co664ulll6g
   securitySchemes: {}
 x-stoplight:
   id: 9id0ut8pp6oo8

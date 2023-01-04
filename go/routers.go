@@ -134,10 +134,31 @@ var routes = Routes{
 	},
 
 	{
+		"DeleteMaterialsId",
+		http.MethodDelete,
+		"/materials/:id",
+		DeleteMaterialsId,
+	},
+
+	{
 		"GetJobsId",
 		http.MethodGet,
 		"/jobs/:id",
 		GetJobsId,
+	},
+
+	{
+		"GetMaterialsId",
+		http.MethodGet,
+		"/materials/:id",
+		GetMaterialsId,
+	},
+
+	{
+		"PostMaterials",
+		http.MethodPost,
+		"/materials",
+		PostMaterials,
 	},
 
 	{
@@ -152,6 +173,13 @@ var routes = Routes{
 		http.MethodPost,
 		"/statorjobs",
 		PostStatorjobs,
+	},
+
+	{
+		"PutMaterialsId",
+		http.MethodPut,
+		"/materials/:id",
+		PutMaterialsId,
 	},
 }
 
