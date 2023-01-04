@@ -75,3 +75,24 @@ func DoPostRectanglejobs(c *gin.Context) {
 func DoPostStatorjobs(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{})
 }
+
+// PutMaterialsId - Update Materials
+func DoPutMaterialsId(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+// DoDeleteMaterialsId - Update Materials
+func DoDeleteMaterialsId(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+// DoGetMaterialsId - Update Materials
+func DoGetMaterialsId(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
+}
+
+// DoPostMaterials - Update Materials
+func DoPostMaterials(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{})
+}
+

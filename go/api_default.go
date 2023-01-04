@@ -19,9 +19,24 @@ func DeleteJobsId(c *gin.Context) {
 	DoDeleteJobsId(c)
 }
 
+// DeleteMaterialsId - Delete Materials
+func DeleteMaterialsId(c *gin.Context) {
+	DoDeleteMaterialsId(c)
+}
+
 // GetJobsId - Get Job
 func GetJobsId(c *gin.Context) {
 	DoGetJobsId(c)
+}
+
+// GetMaterialsId - Get Materials
+func GetMaterialsId(c *gin.Context) {
+	DoGetMaterialsId(c)
+}
+
+// PostMaterials - Create Material
+func PostMaterials(c *gin.Context) {
+	DoPostMaterials(c)
 }
 
 // PostRectanglejobs - Create RectangleJob
@@ -32,4 +47,9 @@ func PostRectanglejobs(c *gin.Context) {
 // PostStatorjobs - Create StatorJob
 func PostStatorjobs(c *gin.Context) {
 	DoPostStatorjobs(c)
+}
+
+// PutMaterialsId - Update Materials
+func PutMaterialsId(c *gin.Context) {
+	DoPutMaterialsId(c)
 }
