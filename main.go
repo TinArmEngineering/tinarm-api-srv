@@ -14,14 +14,9 @@ import (
 	"log"
 
 	sw "github.com/tinarmengineering/tinarm-api-srv/go"
-	dbo "github.com/tinarmengineering/tinarm-api-srv/go/dbo"
 )
 
 func main() {
-
-	dbo.ConnectDatabase()
-
 	router := sw.NewRouter()
-
 	log.Fatal(router.Run(":8080"))
 }
