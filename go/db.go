@@ -48,7 +48,7 @@ func InsertJob(job interface{}) (string, error) {
 }
 
 func InsertMaterial(material interface{}) (string, error) {
-	return insertOneThing("material", material)
+	return insertOneThing("materials", material)
 }
 
 // This is a user defined method to close resources.
@@ -170,7 +170,7 @@ func QueryById(id string) (*mongo.SingleResult, error) {
 	}
 
 	defer close(client, ctx, cancel)
-	return queryById(client, ctx, "material", id), err
+	return queryById(client, ctx, "materials", id), err
 }
 
 func queryById(
