@@ -15,7 +15,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/tinarmengineering/tinarm-api-srv/go/dbo"
 )
 
 // DeleteJobsId - Delete Job
@@ -50,7 +49,7 @@ func DoPostRectanglejobs(c *gin.Context) {
 		return
 	}
 
-	insertJobResult, err := dbo.InsertJob(rJob)
+	insertJobResult, err := InsertJob(rJob)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -68,7 +67,7 @@ func DoPostRectanglejobs(c *gin.Context) {
 		string(rJobGeomotry) +
 		", \"nextstep\":null}"
 
-	dbo.Enqueue(body)
+	Enqueue(body)
 
 	c.JSON(http.StatusOK, rJob)
 }
@@ -90,10 +89,32 @@ func DoDeleteMaterialsId(c *gin.Context) {
 
 // DoGetMaterialsId - Update Materials
 func DoGetMaterialsId(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+
+	material, err := GetMaterialById(c.Param("id"))
+	if err == nil {
+		c.JSON(http.StatusOK, material)
+	} else {
+		c.JSON(http.StatusNotFound, err)
+	}
 }
 
 // DoPostMaterials - Update Materials
 func DoPostMaterials(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{})
+	var material Material
+	err := c.BindJSON(&material)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	insertMaterialResult, err := InsertMaterial(material)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	var materialId interface{} = insertMaterialResult
+	material.Id = &materialId
+
+	c.JSON(http.StatusOK, material)
 }

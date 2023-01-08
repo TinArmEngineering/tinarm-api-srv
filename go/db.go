@@ -1,4 +1,4 @@
-package dbo
+package openapi
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -40,6 +41,14 @@ func dbConnectionString() string {
 	return "mongodb://" + dbUser() +
 		":" + dbPass() +
 		"@" + dbHost()
+}
+
+func InsertJob(job interface{}) (string, error) {
+	return insertOneThing("jobs", job)
+}
+
+func InsertMaterial(material interface{}) (string, error) {
+	return insertOneThing("material", material)
 }
 
 // This is a user defined method to close resources.
@@ -123,14 +132,6 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func InsertJob(job interface{}) (string, error) {
-	return insertOneThing("jobs", job)
-}
-
-func InsertMaterial(material interface{}) (string, error) {
-	return insertOneThing("material", material)
-}
-
 func insertOneThing(thingName string, thing interface{}) (string, error) {
 
 	client, ctx, cancel, err := connect(dbConnectionString())
@@ -145,5 +146,61 @@ func insertOneThing(thingName string, thing interface{}) (string, error) {
 
 	defer close(client, ctx, cancel)
 
-	return insertOneResult.InsertedID.(primitive.ObjectID).String(), err
+	mongoId, err := insertOneResult.InsertedID.(primitive.ObjectID).MarshalText()
+
+	return string(mongoId[:]), err
+}
+
+func GetMaterialById(id string) (Material, error) {
+
+	result, err := QueryById(id)
+	material := Material{}
+	err = result.Decode(&material)
+
+	var materialId interface{} = id
+	material.Id = &materialId
+
+	return material, err
+}
+
+func QueryById(id string) (*mongo.SingleResult, error) {
+	client, ctx, cancel, err := connect(dbConnectionString())
+	if err != nil {
+		return nil, err
+	}
+
+	defer close(client, ctx, cancel)
+	return queryById(client, ctx, "material", id), err
+}
+
+func queryById(
+	client *mongo.Client,
+	ctx context.Context,
+	col string,
+	id string) *mongo.SingleResult {
+	// convert id string to ObjectId
+	objectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Println("Invalid id")
+	}
+
+	// find
+	return client.Database(dbName()).Collection(col).FindOne(ctx, bson.M{"_id": objectId})
+}
+
+func query(
+	client *mongo.Client,
+	ctx context.Context,
+	col string,
+	query,
+	field interface{}) (result *mongo.Cursor, err error) {
+
+	collection := client.Database(dbName()).Collection(col)
+
+	result, err = collection.Find(
+		ctx,
+		query,
+		options.Find().SetProjection(field))
+
+	return
 }

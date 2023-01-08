@@ -11,7 +11,6 @@
 package openapi
 
 type Quantity struct {
-
 	Magnitude *interface{} `json:"magnitude"`
 
 	Quantity *interface{} `json:"quantity,omitempty"`
