@@ -49,7 +49,7 @@ func DoPostRectanglejobs(c *gin.Context) {
 		return
 	}
 
-	insertJobResult, err := InsertJob(rJob)
+	insertJobResult, err := Database{}.InsertOne("jobs", rJob)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -96,9 +96,9 @@ func DoGetMaterialsId(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusNotFound, err)
 	}
+	c.JSON(http.StatusOK, "material")
 }
 
-// DoPostMaterials - Update Materials
 func DoPostMaterials(c *gin.Context) {
 	var material Material
 	err := c.BindJSON(&material)
@@ -107,7 +107,7 @@ func DoPostMaterials(c *gin.Context) {
 		return
 	}
 
-	insertMaterialResult, err := InsertMaterial(material)
+	insertMaterialResult, err := Database{}.InsertOne("materials", material)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return

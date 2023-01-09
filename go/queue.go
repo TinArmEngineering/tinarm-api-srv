@@ -9,19 +9,6 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-const (
-	// Dev config
-	QUEUE_HOST = "localhost:5672"
-)
-
-func qHost() string {
-	return getEnvironment("GOSERVER_QUEUE_HOST", QUEUE_HOST)
-}
-
-func queueConnectionString() string {
-	return "amqp://guest:guest@" + qHost() + "/"
-}
-
 // Post to RabbitMQ
 func Enqueue(body string) {
 
@@ -58,4 +45,10 @@ func Enqueue(body string) {
 		})
 	failOnError(err, "Failed to publish a message")
 	log.Printf(" [x] Sent %s\n", body)
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		log.Panicf("%s: %s", msg, err)
+	}
 }
