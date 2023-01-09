@@ -96,7 +96,6 @@ func DoGetMaterialsId(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusNotFound, err)
 	}
-	c.JSON(http.StatusOK, "material")
 }
 
 func DoPostMaterials(c *gin.Context) {
