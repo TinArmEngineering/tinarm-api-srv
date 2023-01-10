@@ -7,7 +7,7 @@ import (
 
 	"time"
 
-	env "github.com/tinarmengineering/sno2-srv-go/environment"
+	env "github.com/tinarmengineering/sno2-srv-go/go/environment"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/bson/primitive"

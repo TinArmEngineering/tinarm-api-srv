@@ -7,7 +7,7 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	env "github.com/tinarmengineering/sno2-srv-go/environment"
+	env "github.com/tinarmengineering/sno2-srv-go/go/environment"
 )
 
 // Post to RabbitMQ
