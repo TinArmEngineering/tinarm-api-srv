@@ -3,11 +3,11 @@ package openapi
 import (
 	"context"
 	"log"
-	"os"
 	"reflect"
 
 	"time"
 
+	env "github.com/tinarmengineering/tinarm-api-srv/environment"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -35,7 +35,7 @@ func (db *Database) connect() (err error) {
 	reg := rb.Build()
 
 	db.dbCtx, db.dbCancelFunc = context.WithTimeout(context.Background(), 30*time.Second)
-	db.dbClient, err = mongo.Connect(db.dbCtx, options.Client().ApplyURI(dbConnectionString()).SetRegistry(reg))
+	db.dbClient, err = mongo.Connect(db.dbCtx, options.Client().ApplyURI(env.DbConnectionString()).SetRegistry(reg))
 	return err
 }
 
@@ -52,7 +52,7 @@ func (db *Database) close() {
 
 func (db Database) InsertOne(col string, doc interface{}) (string, error) {
 
-	collection := db.getDbClient().Database(dbName()).Collection(col)
+	collection := db.getDbClient().Database(env.DbName()).Collection(col)
 
 	defer db.close()
 
@@ -67,7 +67,7 @@ func (db Database) InsertOne(col string, doc interface{}) (string, error) {
 
 func (db Database) Query(col string, query, field interface{}) (result *mongo.Cursor, err error) {
 
-	collection := db.getDbClient().Database(dbName()).Collection(col)
+	collection := db.getDbClient().Database(env.DbName()).Collection(col)
 
 	result, err = collection.Find(
 		db.dbCtx,
@@ -84,22 +84,13 @@ func (db Database) QueryById(col string, id string) *mongo.SingleResult {
 		log.Println("Invalid id")
 	}
 
-	var result = db.getDbClient().Database(dbName()).Collection(col).FindOne(
+	var result = db.getDbClient().Database(env.DbName()).Collection(col).FindOne(
 		db.dbCtx,
 		bson.M{"_id": objectId})
 
 	defer db.close()
 
 	return result
-}
-
-func getEnvironment(name string, defaultOnEmpty string) string {
-
-	setting := os.Getenv(name)
-	if setting == "" {
-		setting = defaultOnEmpty
-	}
-	return setting
 }
 
 func GetMaterialById(id string) (Material, error) {

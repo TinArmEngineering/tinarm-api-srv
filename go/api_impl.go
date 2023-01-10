@@ -91,11 +91,7 @@ func DoDeleteMaterialsId(c *gin.Context) {
 func DoGetMaterialsId(c *gin.Context) {
 
 	material, err := GetMaterialById(c.Param("id"))
-	if err == nil {
-		c.JSON(http.StatusOK, material)
-	} else {
-		c.JSON(http.StatusNotFound, err)
-	}
+	HandleGetResponse(c, material, err)
 }
 
 func DoPostMaterials(c *gin.Context) {
@@ -116,4 +112,12 @@ func DoPostMaterials(c *gin.Context) {
 	material.Id = &materialId
 
 	c.JSON(http.StatusOK, material)
+}
+
+func HandleGetResponse(c *gin.Context, obj any, err error) {
+	if err == nil {
+		c.JSON(http.StatusOK, obj)
+	} else {
+		c.JSON(http.StatusNotFound, err)
+	}
 }

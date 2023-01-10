@@ -7,6 +7,7 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+	env "github.com/tinarmengineering/tinarm-api-srv/environment"
 )
 
 // Post to RabbitMQ
@@ -14,7 +15,7 @@ func Enqueue(body string) {
 
 	log.Printf("Queueing: " + body)
 
-	conn, err := amqp.Dial(queueConnectionString())
+	conn, err := amqp.Dial(env.QueueConnectionString())
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
 
