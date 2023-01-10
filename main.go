@@ -13,7 +13,7 @@ package main
 import (
 	"log"
 
-	sw "github.com/tinarmengineering/tinarm-api-srv/go"
+	sw "github.com/tinarmengineering/sno2-srv-go/go"
 )
 
 func main() {

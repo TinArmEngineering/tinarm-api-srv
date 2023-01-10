@@ -1,4 +1,4 @@
-module github.com/tinarmengineering/tinarm-api-srv
+module github.com/tinarmengineering/sno2-srv-go
 
 go 1.19
 
