@@ -1,4 +1,4 @@
-package openapi
+package services
 
 import (
 	"context"
@@ -10,8 +10,10 @@ import (
 	env "github.com/tinarmengineering/sno2-srv-go/go/environment"
 )
 
-// Post to RabbitMQ
-func Enqueue(body string) {
+type Queue struct {
+}
+
+func (queue Queue) Enqueue(body string) {
 
 	log.Printf("Queueing: " + body)
 

@@ -15,6 +15,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	svc "github.com/tinarmengineering/sno2-srv-go/go/services"
 )
 
 // DeleteJobsId - Delete Job
@@ -49,7 +50,7 @@ func DoPostRectanglejobs(c *gin.Context) {
 		return
 	}
 
-	insertJobResult, err := Database{}.InsertOne("jobs", rJob)
+	insertJobResult, err := svc.Database{}.InsertOne("jobs", rJob)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -67,7 +68,7 @@ func DoPostRectanglejobs(c *gin.Context) {
 		string(rJobGeomotry) +
 		", \"nextstep\":null}"
 
-	Enqueue(body)
+	svc.Queue{}.Enqueue(body)
 
 	c.JSON(http.StatusOK, rJob)
 }
@@ -90,7 +91,7 @@ func DoDeleteMaterialsId(c *gin.Context) {
 // DoGetMaterialsId - Update Materials
 func DoGetMaterialsId(c *gin.Context) {
 
-	material, err := GetMaterialById(c.Param("id"))
+	material, err := getMaterialById(c.Param("id"))
 	HandleGetResponse(c, material, err)
 }
 
@@ -102,7 +103,7 @@ func DoPostMaterials(c *gin.Context) {
 		return
 	}
 
-	insertMaterialResult, err := Database{}.InsertOne("materials", material)
+	insertMaterialResult, err := svc.Database{}.InsertOne("materials", material)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -120,4 +121,17 @@ func HandleGetResponse(c *gin.Context, obj any, err error) {
 	} else {
 		c.JSON(http.StatusNotFound, err)
 	}
+}
+
+func getMaterialById(id string) (Material, error) {
+
+	result := svc.Database{}.QueryById("materials", id)
+
+	material := Material{}
+	err := result.Decode(&material)
+
+	var materialId interface{} = id
+	material.Id = &materialId
+
+	return material, err
 }

@@ -1,4 +1,4 @@
-package openapi
+package services
 
 import (
 	"context"
@@ -53,7 +53,6 @@ func (db *Database) close() {
 func (db Database) InsertOne(col string, doc interface{}) (string, error) {
 
 	collection := db.getDbClient().Database(env.DbName()).Collection(col)
-
 	defer db.close()
 
 	result, err := collection.InsertOne(db.dbCtx, doc)
@@ -68,6 +67,7 @@ func (db Database) InsertOne(col string, doc interface{}) (string, error) {
 func (db Database) Query(col string, query, field interface{}) (result *mongo.Cursor, err error) {
 
 	collection := db.getDbClient().Database(env.DbName()).Collection(col)
+	defer db.close()
 
 	result, err = collection.Find(
 		db.dbCtx,
@@ -84,24 +84,8 @@ func (db Database) QueryById(col string, id string) *mongo.SingleResult {
 		log.Println("Invalid id")
 	}
 
-	var result = db.getDbClient().Database(env.DbName()).Collection(col).FindOne(
-		db.dbCtx,
-		bson.M{"_id": objectId})
-
+	var result = db.getDbClient().Database(env.DbName()).Collection(col).FindOne(db.dbCtx, bson.M{"_id": objectId})
 	defer db.close()
 
 	return result
-}
-
-func GetMaterialById(id string) (Material, error) {
-
-	result := Database{}.QueryById("materials", id)
-
-	material := Material{}
-	err := result.Decode(&material)
-
-	var materialId interface{} = id
-	material.Id = &materialId
-
-	return material, err
 }
